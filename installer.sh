@@ -3,8 +3,8 @@
 # Termux Bug Bounty Aggressive Setup 2025 - Online Installer
 # Fokus: Recon + Content Discovery + Vuln Scanning + XSS
 # Total ~7-11GB, cocok 6GB+ RAM
-# Cara pakai: curl -fsSL https://raw.githubusercontent.com/whitehat57/termux-hunter/main/installer.sh | bash
-# Update: Handle non-interactive untuk conffile prompt (keep old config)
+# Cara pakai: curl -fsSL https://raw.githubusercontent.com/USERNAME/REPO/main/installer.sh | bash
+# Update: Handle non-interactive upgrade + auto switch to zsh after oh-my-zsh install
 # -------------------------------------------------------------------
 
 set -e  # Stop on error
@@ -61,6 +61,8 @@ apt install -y git curl wget zsh neovim python golang nodejs-lts rust binutils b
 
 echo "Setup zsh + oh-my-zsh (opsional tapi nyaman banget)"
 chsh -s zsh
+
+# Install oh-my-zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions --quiet
 git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting --quiet
@@ -68,6 +70,14 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.
 # Tambahkan ke .zshrc kalau belum ada
 grep -q "plugins=(git z zsh-autosuggestions zsh-syntax-highlighting)" ~/.zshrc || sed -i 's/plugins=(git)/plugins=(git z zsh-autosuggestions zsh-syntax-highlighting)/' ~/.zshrc
 grep -q 'export PATH="$HOME/go/bin:$PATH"' ~/.zshrc || echo 'export PATH="$HOME/go/bin:$PATH"' >> ~/.zshrc
+
+# Switch ke zsh sekarang juga (fix error load from bash)
+if [ -z "$ZSH_VERSION" ]; then
+    echo "Switching to zsh shell for the rest of the script..."
+    exec zsh -l
+fi
+
+# Kalau sudah di zsh, lanjut install tools
 source ~/.zshrc
 
 echo "Install ProjectDiscovery tools + ffuf + dalfox + utility populer..."
@@ -94,6 +104,7 @@ nuclei -update-templates
 check_go_tools
 
 echo "Setup selesai! Restart Termux atau ketik 'source ~/.zshrc'"
+echo "Cek shell: echo \$SHELL (harus zsh)"
 echo "Cek storage: df -h"
 echo "Contoh workflow: subfinder -d example.com -all | httpx -o alive.txt"
 echo "Backup: tar -czf ~/storage/shared/termux-backup.tar.gz ~/.termux ~/go/bin ~/go/pkg ~/nuclei-templates"
