@@ -3,18 +3,18 @@
 # Termux Bug Bounty Aggressive Setup 2025 - Online Installer
 # Fokus: Recon + Content Discovery + Vuln Scanning + XSS
 # Total ~7-11GB, cocok 6GB+ RAM
-# Cara pakai: curl -fsSL https://raw.githubusercontent.com/whitehat57/termux-hunter/main/installer.sh | bash
+# Cara pakai: curl -fsSL https://raw.githubusercontent.com/USERNAME/REPO/main/installer.sh | bash
+# Update: Handle non-interactive untuk conffile prompt (keep old config)
 # -------------------------------------------------------------------
 
 set -e  # Stop on error
 
-# Fungsi pengecekan tools Go
+# Fungsi pengecekan tools Go (sama seperti sebelumnya)
 check_go_tools() {
     echo "Mulai pengecekan tools Go..."
     local tools=("subfinder" "httpx" "nuclei" "katana" "dnsx" "naabu" "hakrawler" "gau" "waybackurls" "dalfox" "ffuf")
     local go_bin="$HOME/go/bin"
     
-    # Pastikan PATH include go_bin
     if [[ ":$PATH:" != *":$go_bin:"* ]]; then
         echo "Fixing PATH: Tambah $go_bin ke PATH"
         echo 'export PATH="$HOME/go/bin:$PATH"' >> ~/.zshrc
@@ -24,7 +24,7 @@ check_go_tools() {
     for tool in "${tools[@]}"; do
         if command -v "$tool" &> /dev/null; then
             echo "✅ $tool sudah terinstall dan di PATH ($(which $tool))"
-            "$tool" --version || true  # Tampilkan versi kalau ada
+            "$tool" --version || true
         else
             echo "❌ $tool tidak ditemukan! Mulai reinstall..."
             case "$tool" in
@@ -50,11 +50,14 @@ check_go_tools() {
     echo "Pengecekan selesai!"
 }
 
-# Mulai setup utama
-echo "Mulai update & install base system..."
-pkg update -y && pkg upgrade -y
+# Mulai setup utama dengan non-interactive mode
+export DEBIAN_FRONTEND=noninteractive
+
+echo "Mulai update & install base system (non-interactive, keep old config)..."
+apt update -y
+apt upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
 termux-setup-storage
-pkg install -y git curl wget zsh neovim python golang nodejs-lts rust binutils build-essential libxml2 libxslt libjpeg-turbo clang make zip unzip jq yq termux-api -y
+apt install -y git curl wget zsh neovim python golang nodejs-lts rust binutils build-essential libxml2 libxslt libjpeg-turbo clang make zip unzip jq yq termux-api
 
 echo "Setup zsh + oh-my-zsh (opsional tapi nyaman banget)"
 chsh -s zsh
