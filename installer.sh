@@ -3,7 +3,7 @@
 # Termux Bug Bounty Aggressive Setup 2025 - Online Installer
 # Fokus: Recon + Content Discovery + Vuln Scanning + XSS
 # Total ~7-11GB, cocok 6GB+ RAM
-# Cara pakai: curl -fsSL https://raw.githubusercontent.com/USERNAME/REPO/main/installer.sh | bash
+# Cara pakai: curl -fsSL https://raw.githubusercontent.com/whitehat57/termux-hunter/main/installer.sh | bash
 # Update: Handle non-interactive untuk conffile prompt (keep old config)
 # -------------------------------------------------------------------
 
